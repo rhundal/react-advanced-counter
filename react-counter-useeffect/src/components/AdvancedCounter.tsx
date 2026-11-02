@@ -3,18 +3,50 @@ export default function AdvancedCounter() {
   const [currentCount, setCurrentCount] = useState<number>(0);
 
   const [history, setHistory] = useState<number[]>([currentCount]);
-
+  const [upArrowPressed, setUpArrowPressed] = useState<boolean>(false);
+  const [downArrowPressed, setDownArrowPressed] = useState<boolean>(false);
+  const [stepValue, setStepValue] = useState<number>(1);
   //Use useEffect for side effects like auto-saving and adding/removing keyboard event listeners.
   //Ensure all useEffect hooks that set up subscriptions or event listeners have proper cleanup functions.
 
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "ArrowUp") {
+      setUpArrowPressed(true);
+    } else if (e.key === "ArrowDown") {
+      setDownArrowPressed(true);
+    }
+  }
+
+  function handleKeyUp(e: KeyboardEvent) {
+    if (e.key === "ArrowUp") {
+      setUpArrowPressed(false);
+    } else if (e.key === "ArrowDown") {
+      setDownArrowPressed(false);
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    if (upArrowPressed) {
+      incCurrentCount();
+    } else if (downArrowPressed) {
+      decCurrentCount();
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [upArrowPressed, downArrowPressed]);
+
   function incCurrentCount() {
-    let newCount = currentCount + 1;
+    let newCount = currentCount + stepValue;
     setCurrentCount(newCount);
     setHistory((prevHistory) => [...prevHistory, newCount]);
   }
   function decCurrentCount() {
-    // setCurrentCount((prevCount) => prevCount - 1);
-    let newCount = currentCount - 1;
+    let newCount = currentCount - stepValue;
     setCurrentCount(newCount);
     setHistory((prevHistory) => [...prevHistory, newCount]);
   }
@@ -63,13 +95,14 @@ export default function AdvancedCounter() {
           <div className="flex flex-row gap-4">
             Step Value:{" "}
             <input
+              onChange={(e) => setStepValue(Number(e.target.value))}
               type="number"
               id="quantity"
               name="quantity"
               step={1}
               min={1}
               max={1200}
-              value={1}
+              value={stepValue}
             />
           </div>
         </div>
