@@ -6,8 +6,8 @@ export default function AdvancedCounter() {
   const [upArrowPressed, setUpArrowPressed] = useState<boolean>(false);
   const [downArrowPressed, setDownArrowPressed] = useState<boolean>(false);
   const [stepValue, setStepValue] = useState<number>(1);
-  //Use useEffect for side effects like auto-saving and adding/removing keyboard event listeners.
-  //Ensure all useEffect hooks that set up subscriptions or event listeners have proper cleanup functions.
+  const [localStorageVal, setLocalStorageVal] = useState<number[]>([]);
+  const [message, setMessage] = useState("Changes Saved.");
 
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "ArrowUp") {
@@ -34,26 +34,42 @@ export default function AdvancedCounter() {
     } else if (downArrowPressed) {
       decCurrentCount();
     }
+
+    if (localStorageVal) {
+      setMessage("Saving to localStorage...");
+      setTimeout(() => {
+        setMessage("Changes Saved.");
+      }, 1000);
+    }
+
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [upArrowPressed, downArrowPressed]);
+  }, [upArrowPressed, downArrowPressed, localStorageVal]);
 
   function incCurrentCount() {
     let newCount = currentCount + stepValue;
     setCurrentCount(newCount);
     setHistory((prevHistory) => [...prevHistory, newCount]);
+    localStorage.setItem("CounterHistory", JSON.stringify(history));
+    setLocalStorageVal(history);
   }
   function decCurrentCount() {
     let newCount = currentCount - stepValue;
     setCurrentCount(newCount);
     setHistory((prevHistory) => [...prevHistory, newCount]);
+    localStorage.setItem("CounterHistory", JSON.stringify(history));
+    setLocalStorageVal(history);
   }
 
   function resetCurrentCount() {
+    const newHistory: number[] = [0];
     setCurrentCount(0);
-    setHistory([]);
+    setHistory(newHistory);
+    setStepValue(0);
+    localStorage.setItem("CounterHistory", JSON.stringify(newHistory));
+    setLocalStorageVal(newHistory);
   }
 
   const getHeightClass = (currentCount: number) => {
@@ -106,7 +122,7 @@ export default function AdvancedCounter() {
             />
           </div>
         </div>
-        <div className="flex justify-center mb-5">Changes Saved</div>
+        <div className="flex justify-center mb-5">{message}</div>
         <div className="flex justify-start mb-2">Count History:</div>
         <hr className="h-px bg-gray-300 border-0 mb-5" />
 
