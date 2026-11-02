@@ -2,22 +2,35 @@ import { useState, useEffect } from "react";
 export default function AdvancedCounter() {
   const [currentCount, setCurrentCount] = useState<number>(0);
 
-  const [history, setHistory] = useState<number[]>([]);
+  const [history, setHistory] = useState<number[]>([currentCount]);
 
   //Use useEffect for side effects like auto-saving and adding/removing keyboard event listeners.
   //Ensure all useEffect hooks that set up subscriptions or event listeners have proper cleanup functions.
 
   function incCurrentCount() {
-    setCurrentCount((prevCount) => prevCount + 1);
+    let newCount = currentCount + 1;
+    setCurrentCount(newCount);
+    setHistory((prevHistory) => [...prevHistory, newCount]);
   }
   function decCurrentCount() {
-    setCurrentCount((prevCount) => prevCount - 1);
+    // setCurrentCount((prevCount) => prevCount - 1);
+    let newCount = currentCount - 1;
+    setCurrentCount(newCount);
+    setHistory((prevHistory) => [...prevHistory, newCount]);
   }
 
   function resetCurrentCount() {
     setCurrentCount(0);
+    setHistory([]);
   }
 
+  const getHeightClass = (currentCount: number) => {
+    if (currentCount === 0) return "h-15";
+    if (currentCount === 1 || currentCount === -1) return "h-20";
+    if (currentCount === 2 || currentCount === -2) return "h-25";
+    if (currentCount === 3 || currentCount === -3) return "h-30";
+    return "h-35";
+  };
   return (
     <div className="flex justify-center mt-10">
       <div className="border-2 border-gray-200 rounded-xl p-10">
@@ -62,9 +75,18 @@ export default function AdvancedCounter() {
         </div>
         <div className="flex justify-center mb-5">Changes Saved</div>
         <div className="flex justify-start mb-2">Count History:</div>
-        <hr className="h-px bg-gray-300 border-0 mb-10" />
+        <hr className="h-px bg-gray-300 border-0 mb-5" />
 
-        <div className="mb-5">{history}</div>
+        <div
+          className={`flex flex-col overflow-y-auto ${getHeightClass(history.length)}`}
+        >
+          {history.map((record, index) => (
+            <div className="block mb-3" key={index}>
+              {" "}
+              {record}{" "}
+            </div>
+          ))}
+        </div>
         <div className="text-center">
           User ArrowUp to increment and ArrowDown to decrement.
         </div>
