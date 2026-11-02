@@ -47,7 +47,9 @@ export default function AdvancedCounter() {
           </div>
         </div>
         <div className="flex justify-center mb-5">Changes Saved</div>
-        <div className="flex justify-start mb-10">Count History:</div>
+        <div className="flex justify-start mb-2">Count History:</div>
+        <hr className="h-px bg-gray-300 border-0 mb-10" />
+
         <div className="mb-5">{history}</div>
         <div className="text-center">
           User ArrowUp to increment and ArrowDown to decrement.
